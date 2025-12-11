@@ -8,10 +8,8 @@ from utils import load_ai_assets, clean_text
 app = Flask(__name__)
 CORS(app)
 
-# Load assets (Models & Dashboard JSON Cache)
 assets = load_ai_assets()
 
-# --- FIX: Add a Home Route to stop 404 Errors ---
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({
@@ -25,11 +23,10 @@ def home():
 
 @app.route('/get_all_trends', methods=['GET'])
 def get_trends():
-    # FIXED: Check for 'report_data' (JSON) instead of 'data' (CSV)
+
     if 'report_data' in assets and assets['report_data']:
         return jsonify(assets['report_data'])
     
-    # Fallback error if pipeline hasn't been run
     return jsonify({
         "error": "Dashboard data not found.", 
         "solution": "Please run 'python master_pipeline.py' to generate the dashboard cache."
