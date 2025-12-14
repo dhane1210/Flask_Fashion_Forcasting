@@ -2,20 +2,18 @@ import time
 import pandas as pd
 import numpy as np
 import requests
-import json
 from datetime import datetime
 from config import SPRING_BOOT_URL, TOPIC_MAP
 from utils import load_ai_assets, clean_text
 
-print("--- 🤖 Starting Automation Worker... ---")
+print("Starting Automation Worker")
 assets = load_ai_assets()
 
 if not assets.get('vectorizer'):
-    print("❌ Models missing. Worker exiting.")
+    print("Models missing. Worker exiting.")
     exit()
 
 def simulate_new_data():
-    # In real life: Call Twitter/Reddit API here
     print("\n[Scraper] Looking for fresh trends...")
     data = [
         {"text": "Obsessed with these new running shoes", "age": 24, "gender": "MALE", "region": "Europe"},
@@ -65,10 +63,10 @@ def run_pipeline():
 
     try:
         resp = requests.post(SPRING_BOOT_URL, json=json_payload, headers={"Content-Type": "application/json"})
-        if resp.status_code in [200, 201]: print(f"✅ Synced {len(json_payload)} new items.")
-        else: print(f"❌ Sync Failed: {resp.status_code}")
+        if resp.status_code in [200, 201]: print(f"Synced {len(json_payload)} new items.")
+        else: print(f"Sync Failed: {resp.status_code}")
     except:
-        print("❌ Connection Error to Spring Boot")
+        print("Connection Error to Spring Boot")
 
 if __name__ == "__main__":
     try:
