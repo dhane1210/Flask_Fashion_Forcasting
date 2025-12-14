@@ -7,10 +7,8 @@ import warnings
 import os
 import sys
 import subprocess
-import time
 from datetime import datetime
 
-# ML Imports
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
@@ -24,13 +22,11 @@ from generate_metrics import generate_advanced_metrics, calculate_simple_metrics
 
 warnings.filterwarnings('ignore')
 
-# --- SMART ASSIGNMENT LOGIC ---
 def smart_assign_topic(row):
-    # 1. Trust Category
+
     cat = str(row.get('category', '')).title()
     if cat in CATEGORY_TO_ID: return CATEGORY_TO_ID[cat]
     
-    # 2. Trust Keywords
     text = str(row.get('text_content', '')).lower()
     if any(x in text for x in ['shoe', 'sneaker', 'boot', 'heel']): return 1
     if any(x in text for x in ['watch', 'dial', 'strap']): return 2
@@ -41,7 +37,6 @@ def smart_assign_topic(row):
     if any(x in text for x in ['dress', 'gown']): return 7
     if any(x in text for x in ['shirt', 'tee', 'top']): return 0
     
-    # 3. Fallback: Force Random Variety for Demo Purposes if unknown
     return np.random.choice(VALID_TOPICS)
 
 def balance_dataset(df):
@@ -49,10 +44,9 @@ def balance_dataset(df):
     STRICT BALANCING: Caps the max rows per topic to 600.
     This ensures dominant categories (T-Shirts) don't drown out niche ones (Watches).
     """
-    print("   ⚖️ Balancing Dataset (Strict Mode)...")
+    print("Balancing Dataset (Strict Mode)")
     df_balanced = pd.DataFrame()
     
-    # We cap every topic at 600 rows max.
     TARGET_CAP = 600 
     
     for topic in VALID_TOPICS:
@@ -68,16 +62,16 @@ def balance_dataset(df):
 
 def run_pipeline():
     print("\n" + "="*50)
-    print("🚀 STARTING BALANCED PIPELINE (8 SEGMENTS)")
+    print("STARTING BALANCED PIPELINE (8 SEGMENTS)")
     print("="*50)
 
     # --- 1. LOAD RAW DATA ---
     print(f"\n[Step 1] Loading Raw Data...")
     if not os.path.exists(PATHS['raw_csv']):
-        print(f"❌ Error: Raw CSV missing."); return
+        print(f"Error: Raw CSV missing."); return
 
     df_raw = pd.read_csv(PATHS['raw_csv'])
-    print(f"✅ Loaded {len(df_raw)} rows.")
+    print(f"Loaded {len(df_raw)} rows.")
 
     # --- 2. TRAIN NLP (Dummy for API) ---
     print("\n[Step 2] Preparing NLP Models...")
@@ -135,7 +129,7 @@ def run_pipeline():
         except:
             print(f"   Batch {i//BATCH + 1}: Failed")
 
-    print("✅ Data Sync Complete.")
+    print("Data Sync Complete.")
 
     # --- 5. FETCH FROM MONGODB ---
     print(f"\n[Step 5] Fetching Live Data from MongoDB...")
@@ -144,9 +138,9 @@ def run_pipeline():
         if resp.status_code == 200:
             db_data = resp.json()
             df_db = pd.DataFrame(db_data)
-            print(f"✅ Fetched {len(df_db)} rows.")
+            print(f"Fetched {len(df_db)} rows.")
         else:
-            print("❌ Failed fetch."); return
+            print("Failed fetch."); return
     except: return
 
     # --- 6. TRAIN SEGMENTATION (K-Means) ---
@@ -171,7 +165,7 @@ def run_pipeline():
     df_db['segment_id'] = kmeans_pipeline.predict(df_db)
     
     joblib.dump(kmeans_pipeline, PATHS['pipeline'])
-    print(f"✅ K-Means Model Trained ({N_CLUSTERS} Segments).")
+    print(f"K-Means Model Trained ({N_CLUSTERS} Segments).")
 
     # --- 7. GENERATE METRICS ---
     print("\n[Step 7] Generating Dashboard Cache...")
@@ -180,11 +174,11 @@ def run_pipeline():
     dashboard_report = calculate_simple_metrics(df_db, TOPIC_MAP)
     with open(PATHS['dashboard_cache'], 'w') as f:
         json.dump(dashboard_report, f)
-    print("✅ Dashboard Cache Updated.")
+    print("Dashboard Cache Updated.")
 
     # --- 8. AUTO-START ---
     print("\n" + "="*50)
-    print("🚀 PIPELINE FINISHED. LAUNCHING SERVERS...")
+    print("PIPELINE FINISHED. LAUNCHING SERVERS...")
     print("="*50)
     
     subprocess.Popen([sys.executable, os.path.join(BASE_DIR, "start_services.py")])

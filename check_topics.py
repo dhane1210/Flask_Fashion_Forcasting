@@ -2,14 +2,14 @@ import joblib
 from config import PATHS
 
 def print_topic_keywords():
-    print("--- 🔍 INSPECTING CURRENT TOPIC MODEL ---")
+    print("INSPECTING CURRENT TOPIC MODEL")
     
     try:
         vectorizer = joblib.load(PATHS['vectorizer'])
         nmf = joblib.load(PATHS['nmf'])
         feature_names = vectorizer.get_feature_names_out()
     except:
-        print("❌ Models not found. Run master_pipeline.py first.")
+        print("Models not found. Run master_pipeline.py first.")
         return
 
     # Print top 10 keywords for each topic

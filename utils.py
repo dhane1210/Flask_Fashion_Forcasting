@@ -9,7 +9,6 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from config import PATHS, FASHION_NOISE
 
-# --- FIX: BYPASS SSL CHECKS (Linux Support) ---
 try:
     _create_unverified_https_context = ssl._create_unverified_context
 except AttributeError:
@@ -17,7 +16,6 @@ except AttributeError:
 else:
     ssl._create_default_https_context = _create_unverified_https_context
 
-# --- NLTK SETUP ---
 try:
     nltk.data.find('corpora/stopwords')
 except LookupError:
@@ -27,7 +25,6 @@ except LookupError:
 
 lemmatizer = WordNetLemmatizer()
 
-# Merge Standard English Stopwords with our Aggressive Fashion Noise
 stop_words = set(stopwords.words('english')).union(FASHION_NOISE)
 
 def clean_text(text):
@@ -55,21 +52,21 @@ def load_ai_assets():
             assets['vectorizer'] = joblib.load(PATHS['vectorizer'])
             assets['nmf'] = joblib.load(PATHS['nmf'])
             assets['pipeline'] = joblib.load(PATHS['pipeline'])
-            print("✅ Models Loaded")
+            print("Models Loaded")
         else:
-            print("⚠️ Models not found. Pipeline will fail if predicting.")
+            print("Models not found. Pipeline will fail if predicting.")
 
         # 2. Load Dashboard Cache (Safely)
         cache_path = PATHS.get('dashboard_cache')
         if cache_path and os.path.exists(cache_path):
             with open(cache_path, 'r') as f:
                 assets['report_data'] = json.load(f)
-            print("✅ Dashboard Cache Loaded")
+            print("Dashboard Cache Loaded")
         else:
-            print(f"⚠️ Dashboard cache not found. Run master_pipeline.py first.")
+            print(f"Dashboard cache not found. Run master_pipeline.py first.")
             assets['report_data'] = []
             
     except Exception as e:
-        print(f"❌ Error loading assets: {e}")
+        print(f"Error loading assets: {e}")
     
     return assets

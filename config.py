@@ -1,4 +1,3 @@
-import os
 from os.path import abspath, dirname, join
 
 # --- DIRECTORY CONFIGURATION ---
@@ -22,7 +21,6 @@ SPRING_SYNC_URL = "http://localhost:8080/segments/"
 SPRING_FETCH_URL = "http://localhost:8080/segments/all"
 
 # --- CONSTANTS ---
-# 1. Output Labels (What shows on Dashboard)
 TOPIC_MAP = {
     0: "T-Shirts & Tops",
     1: "Footwear",
